@@ -14,7 +14,7 @@ void HTTPHandler::handle_request( void )
     /* parse up to the host header */
     read_request();
 
-    if ( !parser_.has_header( "Host" ) ) {
+    if ( !request_parser_.has_header( "Host" ) ) {
       /* there was no host header */
       if ( !pending_client_to_server_.empty() ) {
 	throw Exception( "HTTPHandler request is missing Host header", pending_client_to_server_ );
@@ -27,7 +27,7 @@ void HTTPHandler::handle_request( void )
     /* open connection to server */
     connect_to_server();
 
-    assert( parser_.headers_parsed() );
+    assert( request_parser_.headers_parsed() );
 
     /* write pending data from client to server */
     server_socket_.write( pending_client_to_server_ );
@@ -48,9 +48,9 @@ void HTTPHandler::read_request( void )
     /* save this data for later replay to server */
     pending_client_to_server_ += buffer;
 
-    if ( parser_.parse( buffer ) ) {
+    if ( request_parser_.parse( buffer ) ) {
       /* found it */
-      printf( "Got initial request: %s\n", parser_.request_line().c_str() );
+      printf( "Got initial request: %s\n", request_parser_.request_line().c_str() );
       return;
     }
   }
@@ -59,7 +59,7 @@ void HTTPHandler::read_request( void )
 void HTTPHandler::connect_to_server( void )
 {
   /* find host and service */
-  string header_value = parser_.get_header_value( "Host" );
+  string header_value = request_parser_.get_header_value( "Host" );
 
   /* split value into host and (possible) port */
   size_t colon_location = header_value.find( ":" );
@@ -118,8 +118,8 @@ void HTTPHandler::two_way_connection( void )
       }
 
       /* parse body or header as appropriate */
-      if ( parser_.parse( buffer ) ) {
-	printf( "Got continuation request: %s\n", parser_.request_line().c_str() );	
+      if ( request_parser_.parse( buffer ) ) {
+	printf( "Got continuation request: %s\n", request_parser_.request_line().c_str() );	
       }
     }
 
@@ -127,6 +127,8 @@ void HTTPHandler::two_way_connection( void )
       /* data available from server */
       /* send to client */
       string buffer = server_socket_.read();
+      log_fd_ << "Received data from server"<<buffer.c_str();
+      log_fd_.flush();
       if ( buffer.empty() ) {
 	server_eof_ = true;
       } else {
