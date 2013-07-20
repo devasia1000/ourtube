@@ -91,6 +91,8 @@ void HTTPHandler::two_way_connection( void )
   pollfds[ 1 ].fd = server_socket_.raw_fd();
   pollfds[ 2 ].fd = signal_fd_;
 
+  /* Run until either client or server closes the underlying
+     TCP connection running below the HTTP transactions */
   while ( 1 ) {
     if ( client_eof_ || server_eof_ ) {
       break;
