@@ -50,7 +50,8 @@ void HTTPHandler::read_request( void )
 
     if ( request_parser_.parse( buffer ) ) {
       /* found it */
-      printf( "Got initial request: %s\n", request_parser_.request_line().c_str() );
+      requests_fd_<<"Got initial request: "<<request_parser_.request_line()<<"\n";
+      requests_fd_.flush();
       return;
     }
   }
@@ -119,7 +120,8 @@ void HTTPHandler::two_way_connection( void )
 
       /* parse body or header as appropriate */
       if ( request_parser_.parse( buffer ) ) {
-	printf( "Got continuation request: %s\n", request_parser_.request_line().c_str() );	
+	requests_fd_<<"Got continuation request: "<<request_parser_.request_line()<<"\n";
+        requests_fd_.flush();
       }
     }
 
@@ -127,8 +129,8 @@ void HTTPHandler::two_way_connection( void )
       /* data available from server */
       /* send to client */
       string buffer = server_socket_.read();
-      log_fd_ << "Received data from server"<<buffer.c_str();
-      log_fd_.flush();
+      response_fd_ <<buffer.c_str();
+      response_fd_.flush();
       if ( buffer.empty() ) {
 	server_eof_ = true;
       } else {
