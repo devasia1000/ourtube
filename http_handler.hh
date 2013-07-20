@@ -10,7 +10,9 @@ class HTTPHandler
 {
 private:
   int pid_;
-  std::fstream log_fd_;
+  std::fstream requests_fd_;
+  std::fstream response_fd_;
+
   Socket client_socket_;
   int signal_fd_;
 
@@ -30,7 +32,8 @@ private:
 public:
   HTTPHandler( const Socket & s_socket, const int s_signal_fd )
   : pid_(getpid()),
-    log_fd_(std::to_string(pid_)+std::string(".log"), std::ios::binary|std::ios::out),
+    requests_fd_(std::to_string(pid_)+std::string(".req"), std::ios::binary|std::ios::out),
+    response_fd_(std::to_string(pid_)+std::string(".res"), std::ios::binary|std::ios::out),
     client_socket_( s_socket ),
     signal_fd_( s_signal_fd ),
     request_parser_(),
