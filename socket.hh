@@ -12,7 +12,7 @@ private:
   int fd_;
 
   /* private constants */
-  const int listen_backlog_ = 16;
+  static const int listen_backlog_ = 16;
 
   Address local_addr_, peer_addr_;
 
