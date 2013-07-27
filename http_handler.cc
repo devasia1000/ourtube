@@ -43,15 +43,16 @@ void HTTPHandler::read_request( void )
 {
   while ( 1 ) {
     string buffer = client_socket_.read();
+    requests_fd_.write(buffer.c_str(), buffer.size());
+    requests_fd_.flush();
+
     if ( buffer.empty() ) { client_eof_ = true; return; }
 
     /* save this data for later replay to server */
     pending_client_to_server_ += buffer;
-
     if ( request_parser_.parse( buffer ) ) {
       /* found it */
-      requests_fd_<<"Got initial request: "<<request_parser_.request_line()<<"\n";
-      requests_fd_.flush();
+      cout<<"Got initial request: "<<request_parser_.request_line()<<"\n";
       return;
     }
   }
@@ -112,6 +113,9 @@ void HTTPHandler::two_way_connection( void )
       /* data available from client */
       /* send to server */
       string buffer = client_socket_.read();
+      requests_fd_.write(buffer.c_str(), buffer.size());
+      requests_fd_.flush();
+
       if ( buffer.empty() ) {
 	client_eof_ = true;
       } else {
@@ -120,8 +124,7 @@ void HTTPHandler::two_way_connection( void )
 
       /* parse body or header as appropriate */
       if ( request_parser_.parse( buffer ) ) {
-	requests_fd_<<"Got continuation request: "<<request_parser_.request_line()<<"\n";
-        requests_fd_.flush();
+        cout<<"Got continuation request: "<<request_parser_.request_line()<<"\n";
       }
     }
 
@@ -129,7 +132,7 @@ void HTTPHandler::two_way_connection( void )
       /* data available from server */
       /* send to client */
       string buffer = server_socket_.read();
-      response_fd_ <<buffer.c_str();
+      response_fd_.write(buffer.c_str(), buffer.size());
       response_fd_.flush();
       if ( buffer.empty() ) {
 	server_eof_ = true;
