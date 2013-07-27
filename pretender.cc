@@ -16,6 +16,14 @@ const string listen_service = "http";
 
 int main( void )
 {
+  int ret_code;
+  ret_code = system("rm -rf logs"); // don't care about return code
+  ret_code = system("mkdir logs");
+  if (ret_code != 0) {
+    printf("Could not create log directory, exiting\n");
+    exit(ret_code);
+  }
+
   try {
     /* create listener socket */
     Socket listener_socket;
