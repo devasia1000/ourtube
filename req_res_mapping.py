@@ -3,11 +3,7 @@ import os
 counter=1
 req_mapping = dict()
 res_mapping = dict()
-try:
-  os.rmdir("mapping")
-except  OSError:
-  print "Directory doesn't exist"
-
+os.system("rm -rf mapping")
 os.mkdir("mapping")
 for file_name in os.listdir("logs"):
   if ("req" in file_name):
@@ -22,7 +18,7 @@ for pid in req_mapping:
     requests = ["GET /" + rec for rec in req_mapping[pid].split("GET /") if rec != ''];
     responses = ["HTTP/1.1 " + rec for rec in res_mapping[pid].split("HTTP/1.1 ") if rec != ''];
 
-    print "Requests ", len(requests), "Responses ", len(responses)
+    print pid, "Requests ", len(requests), "Responses ", len(responses)
     assert(len(requests) == len(responses))
     for i in range(0, len(requests)):
       req_fh = open("mapping/"+str(counter)+".object","w");
