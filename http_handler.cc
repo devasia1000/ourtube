@@ -77,8 +77,8 @@ void HTTPHandler::connect_to_server( void )
 
   Address server_addr( host, service );
   
-  fprintf( stderr, "Opening connection to host %s @ %s\n",
-	   host.c_str(), server_addr.str().c_str() );
+  //fprintf( stderr, "Opening connection to host %s @ %s\n",
+  //	   host.c_str(), server_addr.str().c_str() );
  
 
   server_socket_.connect( server_addr );
